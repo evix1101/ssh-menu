@@ -81,10 +81,6 @@ ssh-menu 3          # Connect to host with menu number 3
 ssh-menu webserver  # Connect to host with name 'webserver'
 ```
 
-## Demo
-
-
-
 ## User Interface
 
 ### Navigation
