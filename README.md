@@ -29,6 +29,40 @@ go install github.com/evix1101/ssh-menu@latest
 
 Download the latest release for your platform from the [Releases page](https://github.com/evix1101/ssh-menu/releases).
 
+Each release contains the binary named `ssh-menu` (or `ssh-menu.exe` on Windows) in an archive:
+- `ssh-menu-linux-amd64.tar.gz` - Linux x86_64
+- `ssh-menu-darwin-amd64.tar.gz` - macOS Intel
+- `ssh-menu-darwin-arm64.tar.gz` - macOS Apple Silicon
+- `ssh-menu-windows-amd64.zip` - Windows x86_64
+
+#### Installation from release
+
+```bash
+# Linux/macOS - extract and install
+tar -xzf ssh-menu-*.tar.gz
+chmod +x ssh-menu
+sudo mv ssh-menu /usr/local/bin/
+
+# Or install to user directory
+mkdir -p ~/.local/bin
+mv ssh-menu ~/.local/bin/
+# Add ~/.local/bin to your PATH if not already there
+```
+
+#### Security warnings
+
+Since the binaries are not signed, you may encounter security warnings:
+
+**macOS**: When you first run ssh-menu, you'll see "ssh-menu cannot be opened because it is from an unidentified developer"
+- Go to System Settings → Privacy & Security
+- Find the message about ssh-menu being blocked
+- Click "Open Anyway"
+- Or, from Terminal: `xattr -d com.apple.quarantine ssh-menu-darwin-*`
+
+**Windows**: You may see "Windows protected your PC"
+- Click "More info"
+- Click "Run anyway"
+
 ## Quick Start
 
 Just run the command to see the interactive menu:

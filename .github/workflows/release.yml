@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build binaries and create archives
+        run: |
+          mkdir -p build
+          
+          # Build and archive for Linux AMD64
+          GOOS=linux GOARCH=amd64 go build -o ssh-menu .
+          tar -czf build/ssh-menu-linux-amd64.tar.gz ssh-menu
+          rm ssh-menu
+          
+          # Build and archive for macOS AMD64
+          GOOS=darwin GOARCH=amd64 go build -o ssh-menu .
+          tar -czf build/ssh-menu-darwin-amd64.tar.gz ssh-menu
+          rm ssh-menu
+          
+          # Build and archive for macOS ARM64 (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -o ssh-menu .
+          tar -czf build/ssh-menu-darwin-arm64.tar.gz ssh-menu
+          rm ssh-menu
+          
+          # Build and archive for Windows AMD64
+          GOOS=windows GOARCH=amd64 go build -o ssh-menu.exe .
+          zip build/ssh-menu-windows-amd64.zip ssh-menu.exe
+          rm ssh-menu.exe
+          
+          # Generate checksums
+          cd build
+          sha256sum *.tar.gz *.zip > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/ssh-menu-linux-amd64.tar.gz
+            build/ssh-menu-darwin-amd64.tar.gz
+            build/ssh-menu-darwin-arm64.tar.gz
+            build/ssh-menu-windows-amd64.zip
+            build/checksums.txt
+          generate_release_notes: true
