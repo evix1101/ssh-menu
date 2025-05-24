@@ -1,4 +1,4 @@
-module ssh-menu
+module github.com/evix1101/ssh-menu
 
 go 1.24
 
