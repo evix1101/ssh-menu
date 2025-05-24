@@ -14,11 +14,13 @@
 !go.sum
 !go.mod
 
+!/.github/workflows/*.yml
+
 !README.md
 !LICENSE
 
 !example.config
-!/.github/workflows/*.yml
+!demo.svg
 
 # ...even if they are in subdirectories
 !*/
