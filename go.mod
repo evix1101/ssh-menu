@@ -2,13 +2,6 @@ module github.com/evix1101/ssh-menu
 
 go 1.24
 
-retract (
-	v1.0.2
-	v1.0.1
-	v1.0.0
-	v0.0.1
-)
-
 require (
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
