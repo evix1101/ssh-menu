@@ -1,0 +1,84 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build
+        run: go build -v .
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build binaries
+        run: |
+          mkdir -p build
+          
+          # Build for Linux AMD64
+          GOOS=linux GOARCH=amd64 go build -o build/ssh-menu-linux-amd64 .
+          
+          # Build for macOS AMD64
+          GOOS=darwin GOARCH=amd64 go build -o build/ssh-menu-darwin-amd64 .
+          
+          # Build for macOS ARM64 (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -o build/ssh-menu-darwin-arm64 .
+          
+          # Build for Windows AMD64
+          GOOS=windows GOARCH=amd64 go build -o build/ssh-menu-windows-amd64.exe .
+
+      - name: Generate checksums
+        run: |
+          cd build
+          sha256sum * > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/ssh-menu-linux-amd64
+            build/ssh-menu-darwin-amd64
+            build/ssh-menu-darwin-arm64
+            build/ssh-menu-windows-amd64.exe
+            build/checksums.txt
+          generate_release_notes: true
