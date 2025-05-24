@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"ssh-menu/internal"
+	"github.com/evix1101/ssh-menu/internal"
 )
 
 func main() {
