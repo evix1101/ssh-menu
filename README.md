@@ -14,6 +14,10 @@ A beautiful terminal-based SSH connection manager that reads your SSH config and
 - 🌈 **Customizable Themes**: Full color customization support
 - 🔒 **Secure**: Uses native SSH
 
+## Screenshot
+
+![SSH Menu Demo](demo.svg)
+
 ## Installation
 
 ### From Source
@@ -76,6 +80,10 @@ You can also directly connect to a host:
 ssh-menu 3          # Connect to host with menu number 3
 ssh-menu webserver  # Connect to host with name 'webserver'
 ```
+
+## Demo
+
+
 
 ## User Interface
 
