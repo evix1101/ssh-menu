@@ -1,7 +1,6 @@
 # SSH Menu
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/evix1101/ssh-menu)](https://goreportcard.com/report/github.com/evix1101/ssh-menu)
 
 A beautiful terminal-based SSH connection manager that reads your SSH config and presents it as an interactive menu with filtering and group organization.
 
