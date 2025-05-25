@@ -23,7 +23,7 @@ A beautiful terminal-based SSH connection manager that reads your SSH config and
 
 ### From Source
 
-Requires Go 1.18 or later.
+Requires Go 1.21 or later.
 
 ```bash
 go install github.com/evix1101/ssh-menu@latest
