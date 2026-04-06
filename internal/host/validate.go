@@ -63,11 +63,6 @@ func checkEmptyHostnames(hosts []Host) {
 		if net.ParseIP(hosts[i].ShortName) != nil || strings.Contains(hosts[i].ShortName, ".") {
 			continue
 		}
-		// Skip trivially short aliases and hosts with enough other config to imply
-		// the SSH client will resolve them (identity file or sourced from a file).
-		if len(hosts[i].ShortName) <= 1 || hosts[i].IdentityFile != "" || hosts[i].SourceFile != "" {
-			continue
-		}
 		hosts[i].Warnings = append(hosts[i].Warnings, Warning{
 			Level:   "warn",
 			Message: fmt.Sprintf("No HostName set for '%s'", hosts[i].ShortName),

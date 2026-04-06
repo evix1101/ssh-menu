@@ -8,7 +8,7 @@ import (
 
 func TestValidateHosts_MissingIdentityFile(t *testing.T) {
 	hosts := []Host{
-		{ShortName: "a", IdentityFile: "/nonexistent/path/key"},
+		{ShortName: "a", LongName: "10.0.1.1", IdentityFile: "/nonexistent/path/key"},
 	}
 	result := ValidateHosts(hosts)
 	if len(result[0].Warnings) != 1 {
@@ -25,7 +25,7 @@ func TestValidateHosts_ExistingIdentityFile(t *testing.T) {
 	os.WriteFile(keyPath, []byte("fake key"), 0600)
 
 	hosts := []Host{
-		{ShortName: "a", IdentityFile: keyPath},
+		{ShortName: "a", LongName: "10.0.1.1", IdentityFile: keyPath},
 	}
 	result := ValidateHosts(hosts)
 	if len(result[0].Warnings) != 0 {
@@ -35,7 +35,7 @@ func TestValidateHosts_ExistingIdentityFile(t *testing.T) {
 
 func TestValidateHosts_TildeExpansion(t *testing.T) {
 	hosts := []Host{
-		{ShortName: "a", IdentityFile: "~/.ssh/nonexistent_key_12345"},
+		{ShortName: "a", LongName: "10.0.1.1", IdentityFile: "~/.ssh/nonexistent_key_12345"},
 	}
 	result := ValidateHosts(hosts)
 	if len(result[0].Warnings) != 1 {
@@ -45,8 +45,8 @@ func TestValidateHosts_TildeExpansion(t *testing.T) {
 
 func TestValidateHosts_DuplicateAliases(t *testing.T) {
 	hosts := []Host{
-		{ShortName: "server-a", SourceFile: "/etc/ssh/config"},
-		{ShortName: "server-a", SourceFile: "/etc/ssh/config.d/extra"},
+		{ShortName: "server-a", LongName: "10.0.1.1", SourceFile: "/etc/ssh/config"},
+		{ShortName: "server-a", LongName: "10.0.1.1", SourceFile: "/etc/ssh/config.d/extra"},
 	}
 	result := ValidateHosts(hosts)
 	if len(result[0].Warnings) != 1 || len(result[1].Warnings) != 1 {
@@ -77,7 +77,7 @@ func TestValidateHosts_EmptyHostnameSkippedForFQDN(t *testing.T) {
 
 func TestValidateHosts_NoIdentityFileNoWarning(t *testing.T) {
 	hosts := []Host{
-		{ShortName: "a", IdentityFile: ""},
+		{ShortName: "a", LongName: "10.0.1.1", IdentityFile: ""},
 	}
 	result := ValidateHosts(hosts)
 	if len(result[0].Warnings) != 0 {
