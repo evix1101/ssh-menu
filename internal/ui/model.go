@@ -26,6 +26,7 @@ type Model struct {
 	groups        []string
 	filteredHosts []host.Host
 	filterText    string
+	statusMsg     string
 	width         int
 	height        int
 }
@@ -67,6 +68,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		m.recalcScroll()
 		return m, nil
 	case tea.KeyMsg:
 		return m.handleKey(msg)
@@ -81,6 +83,9 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	if action == keyTogglePin && m.filterText != "" {
 		action = keyRune
 	}
+
+	// Clear status message on any key press
+	m.statusMsg = ""
 
 	switch action {
 	case keyQuit:
@@ -106,6 +111,8 @@ func (m *Model) handleKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.updateFilteredHosts()
 		m.cursor = 0
 		m.scrollOffset = 0
+	case keyNoop:
+		// Ignore unhandled keys
 	}
 	return m, nil
 }
@@ -133,6 +140,7 @@ func (m *Model) moveCursor(delta int) {
 	if m.cursor < 0 {
 		m.cursor = 0
 	}
+	m.recalcScroll()
 }
 
 func (m *Model) navigateView(delta int) {
@@ -167,6 +175,7 @@ func (m *Model) togglePin() {
 
 	if selected.SourceFile != "" {
 		if err := config.TogglePin(selected.SourceFile, selected.ShortName, newPinState); err != nil {
+			m.statusMsg = fmt.Sprintf("Pin failed: %v", err)
 			return
 		}
 	}
@@ -194,6 +203,25 @@ func (m *Model) updateFilteredHosts() {
 
 	filtered := host.FilterHosts(m.filterText, viewHosts)
 	m.filteredHosts = host.SortWithPins(filtered)
+}
+
+func (m *Model) contentHeight() int {
+	headerLines := 3
+	if m.filterText != "" {
+		headerLines += 2
+	}
+	if m.statusMsg != "" {
+		headerLines++
+	}
+	h := m.height - headerLines
+	if h < 1 {
+		h = 20
+	}
+	return h
+}
+
+func (m *Model) recalcScroll() {
+	m.scrollOffset = calculateScrollOffset(m.cursor, m.scrollOffset, m.contentHeight(), len(m.filteredHosts))
 }
 
 // View implements tea.Model.
@@ -230,26 +258,22 @@ func (m *Model) View() string {
 		s.WriteString("\n\n")
 	}
 
-	headerLines := 3
-	if m.filterText != "" {
-		headerLines += 2
+	if m.statusMsg != "" {
+		s.WriteString(theme.WarningStyle().Render(m.statusMsg))
+		s.WriteString("\n")
 	}
-	contentHeight := m.height - headerLines
-	if contentHeight < 1 {
-		contentHeight = 20
-	}
+
+	ch := m.contentHeight()
 
 	if m.width >= minWidthForTwoPane {
 		leftWidth := m.width * 55 / 100
 		rightWidth := m.width - leftWidth - 1
 
-		m.scrollOffset = calculateScrollOffset(m.cursor, m.scrollOffset, contentHeight, len(m.filteredHosts))
-
-		leftPane := renderHostList(m.filteredHosts, m.cursor, m.scrollOffset, leftWidth, contentHeight)
+		leftPane := renderHostList(m.filteredHosts, m.cursor, m.scrollOffset, leftWidth, ch)
 
 		rightPane := ""
 		if len(m.filteredHosts) > 0 && m.cursor < len(m.filteredHosts) {
-			rightPane = renderDetail(m.filteredHosts[m.cursor], rightWidth, contentHeight)
+			rightPane = renderDetail(m.filteredHosts[m.cursor], rightWidth, ch)
 		}
 
 		separator := lipgloss.NewStyle().
@@ -259,7 +283,7 @@ func (m *Model) View() string {
 		leftLines := strings.Split(leftPane, "\n")
 		rightLines := strings.Split(rightPane, "\n")
 
-		maxLines := contentHeight
+		maxLines := ch
 		for len(leftLines) < maxLines {
 			leftLines = append(leftLines, "")
 		}
@@ -277,8 +301,7 @@ func (m *Model) View() string {
 			s.WriteString("\n")
 		}
 	} else {
-		m.scrollOffset = calculateScrollOffset(m.cursor, m.scrollOffset, contentHeight, len(m.filteredHosts))
-		s.WriteString(renderHostList(m.filteredHosts, m.cursor, m.scrollOffset, m.width, contentHeight))
+		s.WriteString(renderHostList(m.filteredHosts, m.cursor, m.scrollOffset, m.width, ch))
 	}
 
 	return s.String()

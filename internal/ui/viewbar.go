@@ -21,8 +21,9 @@ func renderViewBar(groups []string, activeIndex int) string {
 
 	for i, group := range groups {
 		displayName := group
-		if len(group) > 12 {
-			displayName = group[:12] + "…"
+		runes := []rune(group)
+		if len(runes) > 12 {
+			displayName = string(runes[:12]) + "…"
 		}
 		if activeIndex == i+1 {
 			tabs[i+1] = activeStyle.Render(displayName)

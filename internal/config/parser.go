@@ -156,7 +156,7 @@ func ReadConfigFiles(configPath string) ([]host.Host, error) {
 		filePath := filepath.Join(configDirPath, file.Name())
 		additional, err := parseFile(filePath)
 		if err != nil {
-			fmt.Printf("Warning: Error reading config file %s: %v\n", filePath, err)
+			fmt.Fprintf(os.Stderr, "Warning: Error reading config file %s: %v\n", filePath, err)
 			continue
 		}
 		allHosts = append(allHosts, additional...)

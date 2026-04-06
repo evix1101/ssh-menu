@@ -23,20 +23,36 @@ func Score(query, text string) int {
 		if idx == 0 {
 			score += 20
 		}
-		if idx > 0 && isBoundary(rune(text[idx-1])) {
-			score += 15
+		// Check boundary by finding the rune before the match
+		if idx > 0 {
+			textRunes := []rune(text)
+			// Find rune index corresponding to byte index
+			byteCount := 0
+			for ri, r := range textRunes {
+				if byteCount == idx && ri > 0 {
+					if isBoundary(textRunes[ri-1]) {
+						score += 15
+					}
+					break
+				}
+				byteCount += len(string(r))
+			}
 		}
 		return score
 	}
 
-	// Fuzzy character-by-character matching
+	// Fuzzy character-by-character matching using runes
+	queryRunes := []rune(queryLower)
+	textRunes := []rune(textLower)
+	origRunes := []rune(text)
+
 	qi := 0
 	score := 0
 	consecutive := 0
 	lastMatchIdx := -1
 
-	for ti := 0; ti < len(textLower) && qi < len(queryLower); ti++ {
-		if textLower[ti] == queryLower[qi] {
+	for ti := 0; ti < len(textRunes) && qi < len(queryRunes); ti++ {
+		if textRunes[ti] == queryRunes[qi] {
 			score += 10
 			if lastMatchIdx == ti-1 {
 				consecutive++
@@ -44,16 +60,16 @@ func Score(query, text string) int {
 			} else {
 				consecutive = 0
 			}
-			if ti == 0 || isBoundary(rune(text[ti-1])) {
+			if ti == 0 || isBoundary(origRunes[ti-1]) {
 				score += 8
 			}
-			score += (len(text) - ti)
+			score += (len(textRunes) - ti)
 			lastMatchIdx = ti
 			qi++
 		}
 	}
 
-	if qi < len(queryLower) {
+	if qi < len(queryRunes) {
 		return 0
 	}
 

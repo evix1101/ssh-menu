@@ -71,12 +71,19 @@ func checkEmptyHostnames(hosts []Host) {
 }
 
 func expandTilde(path string) string {
-	if !strings.HasPrefix(path, "~") {
-		return path
+	if path == "~" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return path
+		}
+		return home
 	}
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return path
+	if strings.HasPrefix(path, "~/") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return path
+		}
+		return home + path[1:]
 	}
-	return strings.Replace(path, "~", home, 1)
+	return path
 }

@@ -15,11 +15,12 @@ const (
 	keyBackspace
 	keyTogglePin
 	keyRune
+	keyNoop
 )
 
 func classifyKey(msg tea.KeyMsg) keyAction {
 	switch msg.Type {
-	case tea.KeyEscape:
+	case tea.KeyEscape, tea.KeyCtrlC, tea.KeyCtrlD:
 		return keyQuit
 	case tea.KeyEnter:
 		return keySelect
@@ -41,5 +42,5 @@ func classifyKey(msg tea.KeyMsg) keyAction {
 		}
 		return keyRune
 	}
-	return keyRune
+	return keyNoop
 }
