@@ -18,6 +18,7 @@
 
 !README.md
 !LICENSE
+!docs/**/*.md
 
 !example.config
 !demo.svg
